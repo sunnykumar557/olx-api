@@ -1,25 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/sunnykumar557/olx-api/internal/config"
+	"github.com/sunnykumar557/olx-api/internal/db"
 	"github.com/sunnykumar557/olx-api/internal/handlers"
 )
 
 func main() {
 	cfg := config.MustLoad()
+	_, err := db.Connect(cfg.DatabaseUrl)
+	if err != nil {
+		log.Fatalf("main.db.connect: %v", err)
+	}
+
+	fmt.Println("DB connected successfully")
+	fmt.Println("starting olx server...")
 
 	mux := http.NewServeMux()
-
-	// http.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-	// 	//w.Header().Add("content-type", "application/json")
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`{"status":"ok"}`))
-	// })
 
 	mux.HandleFunc("GET /healthz", handlers.Healthz)
 
