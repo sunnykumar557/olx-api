@@ -35,12 +35,12 @@ func main() {
 			log.Fatal(err)
 		}
 	case "down":
-		if err := m.Down(); err != nil {
+		if err := m.Steps(-1); err != nil {
 			log.Fatal(err)
 		}
 	default:
 		log.Fatal("usage: migrate <up | down>")
 	}
 
-	fmt.Println("Running migration...")
+	fmt.Println("migration completed successfully")
 }
