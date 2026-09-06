@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/sunnykumar557/olx-api/internal/config"
@@ -21,7 +23,14 @@ func main() {
 	fmt.Println("DB connected successfully")
 	fmt.Println("starting olx server...")
 
-	lh := handlers.NewListingHandler(db)
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+
+	lh := handlers.NewListingHandler(db, logger)
 
 	mux := http.NewServeMux()
 	// Endpoints
