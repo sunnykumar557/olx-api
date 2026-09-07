@@ -11,6 +11,7 @@ import (
 	"github.com/sunnykumar557/olx-api/internal/config"
 	"github.com/sunnykumar557/olx-api/internal/db"
 	"github.com/sunnykumar557/olx-api/internal/handlers"
+	"github.com/sunnykumar557/olx-api/internal/middlewares"
 )
 
 func main() {
@@ -23,11 +24,11 @@ func main() {
 	fmt.Println("DB connected successfully")
 	fmt.Println("starting olx server...")
 
-	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
 	})
-	logger := slog.New(handler)
+	logger := slog.New(logHandler)
 	slog.SetDefault(logger)
 
 	lh := handlers.NewListingHandler(db, logger)
@@ -38,9 +39,11 @@ func main() {
 	mux.HandleFunc("GET /listings", lh.List)
 	mux.HandleFunc("DELETE /listings/{id}", lh.Delete)
 
+	handler := middlewares.RequestId(mux)
+
 	srv := http.Server{
 		Addr:         ":" + cfg.Port,
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 30,
 		IdleTimeout:  time.Second * 60,
